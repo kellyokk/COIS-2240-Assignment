@@ -3,9 +3,23 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class RentalSystem {
+	
+	private static RentalSystem instance;
+	
     private List<Vehicle> vehicles = new ArrayList<>();
     private List<Customer> customers = new ArrayList<>();
     private RentalHistory rentalHistory = new RentalHistory();
+    
+    
+    // Method to get the singleton instance
+    public static synchronized RentalSystem getInstance() {
+        if (instance == null) {
+            instance = new RentalSystem();
+        }
+        return instance;
+    }
+    
+    
 
     public void addVehicle(Vehicle vehicle) {
         vehicles.add(vehicle);
