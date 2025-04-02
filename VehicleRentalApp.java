@@ -10,7 +10,8 @@ public class VehicleRentalApp {
         	System.out.println("1: Add Vehicle\n2: Add Customer\n3: Rent Vehicle\n4: Return Vehicle\n5: Display Available Vehicles\n6: Show Rental History\n7: Exit");
             int choice = scanner.nextInt();
             scanner.nextLine();
-
+            	
+//            this is a test
             switch (choice) {
                 case 1:
                     System.out.println("  1: Car\n  2: Motorcycle\n  3: Truck");
