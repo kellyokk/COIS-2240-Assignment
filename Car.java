@@ -6,7 +6,10 @@ public class Car extends Vehicle implements Rentable {
         this.numSeats = numSeats;
     }
 
-    public int getNumSeats() {
+    public Car(String licensePlate, String make, String model, int year, Vehicle.VehicleStatus status) {
+	}
+
+	public int getNumSeats() {
         return numSeats;
     }
 

@@ -6,7 +6,10 @@ public class Motorcycle extends Vehicle implements Rentable {
         this.hasSidecar = hasSidecar;
     }
 
-    public boolean hasSidecar() {
+    public Motorcycle(String licensePlate, String make, String model, int year, Vehicle.VehicleStatus status) {
+	}
+
+	public boolean hasSidecar() {
         return hasSidecar;
     }
 
