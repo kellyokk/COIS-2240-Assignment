@@ -1,3 +1,5 @@
+package application;
+
 public class Motorcycle extends Vehicle implements Rentable {
     private boolean hasSidecar;
 

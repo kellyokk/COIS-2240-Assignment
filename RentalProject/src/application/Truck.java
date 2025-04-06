@@ -1,3 +1,5 @@
+package application;
+
 public class Truck extends Vehicle implements Rentable {
     private double cargoCapacity;
 
