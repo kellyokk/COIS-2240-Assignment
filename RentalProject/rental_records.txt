@@ -1,0 +1,6 @@
+RENT | Plate: AAA111 | Customer: George | Date: 2025-04-06 | Amount: $300.0
+RENT | Plate: CCC333 | Customer: George | Date: 2025-04-06 | Amount: $200.0
+RETURN | Plate: CCC333 | Customer: George | Date: 2025-04-06 | Amount: $200.0
+RENT | Plate: BBB222 | Customer: Anne | Date: 2025-04-06 | Amount: $300.0
+RENT | Plate: CCC333 | Customer: Anne | Date: 2025-04-06 | Amount: $200.0
+RETURN | Plate: CCC333 | Customer: Anne | Date: 2025-04-06 | Amount: $200.0

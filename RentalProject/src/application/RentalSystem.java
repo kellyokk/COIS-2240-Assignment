@@ -1,10 +1,11 @@
 package application;
-
 import java.util.List;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 
 public class RentalSystem {
@@ -13,16 +14,24 @@ public class RentalSystem {
     private List<Customer> customers = new ArrayList<>();
     private RentalHistory rentalHistory = new RentalHistory();
     
-    private RentalSystem() {}
+    private RentalSystem() {
+    	loadData();
+    }
     
-    public void addVehicle(Vehicle vehicle) {
+    public boolean addVehicle(Vehicle vehicle) {
+        if (findVehicleByPlate(vehicle.getLicensePlate()) != null) {
+            System.out.println("A vehicle with license plate " + vehicle.getLicensePlate() + " already exists.");
+            return false;
+        }
+
         vehicles.add(vehicle);
         saveVehicle(vehicle);
+        return true;
     }
     
     public void saveVehicle(Vehicle vehicle) {
     	try (BufferedWriter writer = new BufferedWriter(new FileWriter("vehicles.txt", true))) {
-            writer.write(vehicle.getInfo() + "\n");
+            writer.write(vehicle.getClass().getSimpleName() + " " + vehicle.getInfo() + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -35,9 +44,15 @@ public class RentalSystem {
     	return rental;
     }
 
-    public void addCustomer(Customer customer) {
+    public boolean addCustomer(Customer customer) {
+        if (findCustomerById(String.valueOf(customer.getCustomerId())) != null) {
+            System.out.println("A customer with ID " + customer.getCustomerId() + " already exists.");
+            return false;
+        }
+
         customers.add(customer);
         saveCustomer(customer);
+        return true;
     }
     
     public void saveCustomer(Customer customer) {
@@ -119,5 +134,92 @@ public class RentalSystem {
             if (c.getCustomerId() == Integer.parseInt(id))
                 return c;
         return null;
+    }
+    
+    public Customer findCustomerByName(String name) {
+        for (Customer c : customers) {
+            if (c.getCustomerName().equalsIgnoreCase(name)) {
+                return c;
+            }
+        }
+        return null;
+    }
+    
+    private void loadData() {
+    	try (BufferedReader vreader = new BufferedReader(new FileReader("vehicles.txt"))) {
+            String line;
+            while ((line = vreader.readLine()) != null) {
+            	line = line.trim();
+            	String[] parts = line.replaceAll("^\\|?\\s*", "").replaceAll("\\s*\\|\\s*$", "").split("\\s*\\|\\s*");
+                if (parts.length != 7) continue;
+                String type = parts[0];
+                String plate = parts[1];
+                String make = parts[2];
+                String model = parts[3];
+                int year = Integer.parseInt(parts[4]);
+                Vehicle.VehicleStatus status = Vehicle.VehicleStatus.valueOf(parts[5]);
+                String extraDets = parts[6];
+
+                Vehicle vehicle;
+                if (type.equalsIgnoreCase("Car")) {
+                    vehicle = new Car(make, model, year, Integer.parseInt(extraDets));
+                } else if (type.equalsIgnoreCase("MotorCycle")){
+                    vehicle = new Motorcycle(make, model, year, Boolean.parseBoolean(extraDets));
+                } else {
+                	vehicle = new Truck(make, model, year, Double.parseDouble(extraDets));
+                }
+                vehicle.setStatus(status);
+                vehicle.setLicensePlate(plate);
+                vehicles.add(vehicle);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    	
+    	try (BufferedReader creader = new BufferedReader(new FileReader("customers.txt"))) {
+            String line;
+            while ((line = creader.readLine()) != null) {
+            	String[] parts = line.split(" \\| ");
+                if (parts.length != 2) continue;
+
+                int id = Integer.parseInt(parts[0].replace("Customer ID: ", "").trim());
+                String name = parts[1].replace("Name: ", "").trim();
+
+                Customer customer = new Customer(id, name);
+                customers.add(customer);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    	
+    	try (BufferedReader rreader = new BufferedReader(new FileReader("rental_records.txt"))) {
+            String line;
+            while ((line = rreader.readLine()) != null) {
+            	String[] parts = line.split(" \\| ");
+                if (parts.length != 5) continue;
+
+                String recordType = parts[0].trim();
+                String plate = parts[1].replace("Plate: ", "").trim();
+                String customerName = parts[2].replace("Customer: ", "").trim();
+                LocalDate date = LocalDate.parse(parts[3].replace("Date: ", "").trim());
+                double amount = Double.parseDouble(parts[4].replace("Amount: $", "").trim());
+
+                Vehicle vehicle = findVehicleByPlate(plate);
+                Customer customer = findCustomerByName(customerName); 
+
+                if (vehicle != null && customer != null) {
+                    if (recordType.equalsIgnoreCase("RENT")) {
+                        vehicle.setStatus(Vehicle.VehicleStatus.RENTED);
+                    } else if (recordType.equalsIgnoreCase("RETURN")) {
+                        vehicle.setStatus(Vehicle.VehicleStatus.AVAILABLE);
+                    }
+
+                    rentalHistory.addRecord(new RentalRecord(vehicle, customer, date, amount, recordType));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
